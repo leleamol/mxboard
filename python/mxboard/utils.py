@@ -65,6 +65,8 @@ def _make_numpy_array(x):
         return np.array([x])
     elif isinstance(x, NDArray):
         return x.asnumpy()
+    elif isinstance(x, tuple):
+        return np.asarray(x, dtype=np.float)
     else:
         raise TypeError('_make_numpy_array only accepts input types of numpy.ndarray, scalar,'
                         ' and MXNet NDArray, while received type {}'.format(str(type(x))))

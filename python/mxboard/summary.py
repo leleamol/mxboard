@@ -149,6 +149,19 @@ def histogram_summary(tag, values, bins):
     return Summary(value=[Summary.Value(tag=tag, histo=hist)])
 
 
+def tensor_summary(tag, value):
+    plugin_data = [SummaryMetadata.PluginData(plugin_name='MXNet')]
+    smd = SummaryMetadata(plugin_data=plugin_data)
+    value = _make_numpy_array(value)
+    dimensions = [TensorShapeProto.Dim(size=d) for d in value.shape]
+
+    tensor = TensorProto(dtype='DT_FLOAT',
+                         float_val=value.reshape(-1).tolist(),
+                         tensor_shape=TensorShapeProto(dim=dimensions))
+    tag = _clean_tag(tag)
+    return Summary(value=[Summary.Value(tag=tag, metadata=smd, tensor=tensor)])
+
+
 def _make_histogram(values, bins):
     """Converts values into a histogram proto using logic from
     https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/lib/histogram/histogram.cc"""

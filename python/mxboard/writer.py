@@ -28,7 +28,7 @@ import logging
 from .proto import event_pb2
 from .proto import summary_pb2
 from .event_file_writer import EventFileWriter
-from .summary import scalar_summary, histogram_summary, image_summary, audio_summary
+from .summary import scalar_summary, histogram_summary, image_summary, audio_summary, tensor_summary
 from .summary import text_summary, pr_curve_summary, _net2pb
 from .utils import _save_embedding_tsv, _make_sprite_image, _make_metadata_tsv
 from .utils import _add_embedding_config, _make_numpy_array, _get_embedding_dir
@@ -401,6 +401,9 @@ class SummaryWriter(object):
         if bins == 'default':
             bins = self._get_default_bins()
         self._file_writer.add_summary(histogram_summary(tag, values, bins), global_step)
+
+    def add_tensor(self, tag, values, global_step=None):
+        self._file_writer.add_summary(tensor_summary(tag, values), global_step)
 
     def add_image(self, tag, image, global_step=None):
         """Add image data to the event file.
