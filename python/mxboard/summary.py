@@ -29,7 +29,7 @@ import struct
 import json
 import re as _re
 import numpy as np
-
+import tensorflow as tf
 try:
     import mxnet
     from distutils.version import LooseVersion
@@ -150,16 +150,15 @@ def histogram_summary(tag, values, bins):
 
 
 def tensor_summary(tag, value):
-    plugin_data = [SummaryMetadata.PluginData(plugin_name='MXNet')]
+    plugin_data = [SummaryMetadata.PluginData(plugin_name='tensor')]
     smd = SummaryMetadata(plugin_data=plugin_data)
     value = _make_numpy_array(value)
-    dimensions = [TensorShapeProto.Dim(size=d) for d in value.shape]
-
-    tensor = TensorProto(dtype='DT_FLOAT',
-                         float_val=value.reshape(-1).tolist(),
+    dimensions = [TensorShapeProto.Dim(size=d, name="{0}_{1}".format(tag,d)) for d in value.shape]
+    tensor_proto = TensorProto(dtype='DT_FLOAT',
+                         tensor_content=value.tostring(),
                          tensor_shape=TensorShapeProto(dim=dimensions))
     tag = _clean_tag(tag)
-    return Summary(value=[Summary.Value(tag=tag, metadata=smd, tensor=tensor)])
+    return Summary(value=[Summary.Value(tag=tag, metadata=smd, tensor=tensor_proto)])
 
 
 def _make_histogram(values, bins):
